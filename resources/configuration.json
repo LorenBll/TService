@@ -1,0 +1,5 @@
+{
+  "port": 49150,
+  "servicehandlerEnabled": true,
+  "servicehandlerPort": 49155
+}

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- launchd plist for TService. Update paths before installation. -->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.tservice</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/path/to/TService/.venv/bin/python</string>
+        <string>/path/to/TService/src/main.py</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/path/to/TService</string>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>/tmp/tservice.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/tmp/tservice.error.log</string>
+</dict>
+</plist>
