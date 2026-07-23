@@ -10,14 +10,17 @@ import socket
 import threading
 import time
 from pathlib import Path
+from typing import Any
 
 import urllib.error
 import urllib.request
 
+from dotenv import load_dotenv
 from flask import Flask, jsonify, request, send_from_directory
 
 from models import PostRequest, PostResponse
 
+load_dotenv()
 logger = logging.getLogger(__name__)
 
 SERVICE_HOST = "127.0.0.1"
@@ -27,6 +30,9 @@ SERVICEHANDLER_HASH: str | None = None
 NO_GUI: bool = False
 
 _CONFIG_CACHE: dict | None = None
+
+
+ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
 
 
 def _load_configuration() -> dict:
@@ -48,11 +54,35 @@ def _load_configuration() -> dict:
     return config
 
 
+def _parse_env_file() -> dict[str, str]:
+    if not ENV_PATH.exists():
+        return {}
+    env_dict: dict[str, str] = {}
+    try:
+        with open(ENV_PATH, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                key, _, value = line.partition("=")
+                key = key.strip()
+                value = value.strip()
+                if key:
+                    env_dict[key] = value
+    except OSError:
+        return {}
+    return env_dict
+
+
 def _initialize_service_config() -> None:
     global SERVICE_PORT, NO_GUI
     config = _load_configuration()
+    env = _parse_env_file()
 
     configured_port = config.get("port", 49150)
+    env_port = env.get("TSERVICE_PORT") or os.getenv("TSERVICE_PORT")
+    if env_port is not None:
+        configured_port = env_port
     if isinstance(configured_port, str) and configured_port.isdigit():
         configured_port = int(configured_port)
     if not isinstance(configured_port, int):
@@ -338,7 +368,13 @@ if __name__ == "__main__":
         exit(1)
 
     config = _load_configuration()
-    if config.get("servicehandlerEnabled", True):
+    env = _parse_env_file()
+    sh_disabled_env = env.get("TSERVICE_SERVICEHANDLER_DISABLED") or os.getenv("TSERVICE_SERVICEHANDLER_DISABLED")
+    if sh_disabled_env is not None and sh_disabled_env.strip().lower() in ("true", "1", "yes"):
+        servicehandler_enabled = False
+    else:
+        servicehandler_enabled = config.get("servicehandlerEnabled", True)
+    if servicehandler_enabled:
         servicehandler_thread = threading.Thread(
             target=_servicehandler_keepalive_forever,
             name="servicehandler-keepalive",

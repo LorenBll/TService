@@ -27,8 +27,17 @@ TService binds to `127.0.0.1` on port `49150` and rejects non-local requests. It
 
 ## Setup
 
-1. Install Python dependencies: `pip install -r requirements.txt`.
-2. Review `resources/configuration.json` to configure port, UI visibility, and ServiceHandler integration.
+1. Copy `.env.example` to `.env` and adjust any overrides (see below).
+2. Install Python dependencies: `pip install -r requirements.txt`.
+3. Review `resources/configuration.json` to configure port, UI visibility, and ServiceHandler integration.
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `TSERVICE_PORT` | `49150` | Override the service port. |
+
+| `TSERVICE_SERVICEHANDLER_DISABLED` | `false` | Set to `true` to prevent registration with ServiceHandler. |
 
 ## Run
 
